@@ -23,17 +23,32 @@ class Play extends Phaser.Scene {
         this.add.rectangle(0, game.config.height - borderUISize, game.config.width, borderUISize, 0xFFFFFF).setOrigin(0, 0);
         this.add.rectangle(0, 0, borderUISize, game.config.height, 0xFFFFFF).setOrigin(0, 0);
         this.add.rectangle(game.config.width - borderUISize, 0, borderUISize, game.config.height, 0xFFFFFF).setOrigin(0, 0);
+        let separate = 0;
+        if (game.settings.coop){
+            separate  = 30;
+        }
         // add rocket (p1)
-        this.p1Rocket = new Rocket(this, game.config.width/2, game.config.height - borderUISize - borderPadding, 'rocket').setOrigin(0.5, 0);
+        this.p1Rocket = new Rocket(this, (game.config.width/2) - separate, game.config.height - borderUISize - borderPadding, 'rocket').setOrigin(0.5, 0);
+        // add rocket (p2)
+        if (game.settings.coop){
+            this.p2Rocket = new RocketTwo(this, (game.config.width/2) + separate, game.config.height - borderUISize - borderPadding, 'rocket').setOrigin(0.5, 0);
+        }
+        
         //spaceships
         this.ship01 = new Spaceship(this, game.config.width + borderUISize*6, borderUISize*4, 'spaceship', 0, 30).setOrigin(0, 0);
         this.ship02 = new Spaceship(this, game.config.width + borderUISize*3, borderUISize*5 + borderPadding*2, 'spaceship', 0, 20).setOrigin(0,0);
         this.ship03 = new Spaceship(this, game.config.width, borderUISize*6 + borderPadding*4, 'spaceship', 0, 10).setOrigin(0,0);
         // define keys
-        keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
+        keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
+        keyW = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
+        keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
         keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
         keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+        keyUP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
+        if (game.settings.coop){
+            
+        }
 
         // animation config
         this.anims.create({
@@ -89,6 +104,7 @@ class Play extends Phaser.Scene {
         this.starfield.tilePositionX -= 1;
         if (!this.gameOver) {               
             this.p1Rocket.update();         // update rocket sprite
+            this.p2Rocket.update();
             this.ship01.update();           // update spaceships (x3)
             this.ship02.update();
             this.ship03.update();
@@ -128,19 +144,34 @@ class Play extends Phaser.Scene {
 
         // check collisions
         if(this.checkCollision(this.p1Rocket, this.ship03)) {
-            console.log('kaboom ship 03');
+            console.log('kaboom ship 03 by p1');
             this.p1Rocket.reset();
-            this.shipExplode(this.ship03); 
+            this.shipExplode(this.ship03, 1); 
         }
         if (this.checkCollision(this.p1Rocket, this.ship02)) {
-            console.log('kaboom ship 02');
+            console.log('kaboom ship 02 by p1');
             this.p1Rocket.reset();
-            this.shipExplode(this.ship02); 
+            this.shipExplode(this.ship02, 1); 
         }
         if (this.checkCollision(this.p1Rocket, this.ship01)) {
-            console.log('kaboom ship 01');
+            console.log('kaboom ship 01 by p1');
             this.p1Rocket.reset();
-            this.shipExplode(this.ship01); 
+            this.shipExplode(this.ship01, 1); 
+        }
+        if(this.checkCollision(this.p2Rocket, this.ship03)) {
+            console.log('kaboom ship 03 by p2');
+            this.p2Rocket.reset();
+            this.shipExplode(this.ship03, 2); 
+        }
+        if (this.checkCollision(this.p2Rocket, this.ship02)) {
+            console.log('kaboom ship 02 by p2');
+            this.p2Rocket.reset();
+            this.shipExplode(this.ship02, 2); 
+        }
+        if (this.checkCollision(this.p2Rocket, this.ship01)) {
+            console.log('kaboom ship 01 by p2');
+            this.p2Rocket.reset();
+            this.shipExplode(this.ship01, 2); 
         }
 
         this.p1Timer = this.p1Clock.getRemainingSeconds();
@@ -163,26 +194,51 @@ class Play extends Phaser.Scene {
         }
     }
 
-    shipExplode(ship) {
+    shipExplode(ship, pNumber) {
+        //ship y position
+        let storeY = ship.y;
         // temporarily hide ship
-        ship.alpha = 0;
+        // ship.alpha = 0;
+        ship.y = -100;
         // create explosion sprite at ship's position
-        let boom = this.add.sprite(ship.x, ship.y, 'explosion').setOrigin(0, 0);
+        let boom = this.add.sprite(ship.x, storeY, 'explosion').setOrigin(0, 0);
         boom.anims.play('explode');             // play explode animation
         boom.on('animationcomplete', () => {    // callback after anim completes
           ship.reset();                         // reset ship position
-          ship.alpha = 1;                       // make ship visible again
+          ship.y = storeY;                       // make ship visible again
           boom.destroy();                       // remove explosion sprite
         });
-        // score add and repaint
-        this.p1Score += ship.points;
-        this.scoreLeft.text = this.p1Score;     
-        this.sound.play('sfx_explosion');   
+        this.sound.play('sfx_explosion'); 
+        if (pNumber == 1){
+            // score add and repaint
+            this.p1Score += ship.points;
+            this.scoreLeft.text = this.p1Score;
+            this.AddTime(1, (ship.points/10)*2);
+        }else{
+            // score add and repaint
+            this.p2Score += ship.points;
+            this.scoreRight.text = this.p2Score;
+            this.AddTime(2, (ship.points/10)*2);
+        }
+          
     }
 
-    AddTime(Timer, Time){
-        Timer.destroy();
-
+    AddTime(Clock, Time){
+        if (Clock == 1){
+            let remainingTime = this.p1Clock.getRemaining();
+            this.p1Clock.destroy();
+            this.p1Clock = this.time.delayedCall(remainingTime + (Time * 1000), () => {
+                console.log("Delayed Call Finished (ext.)");
+            }, null, this);
+        }else{
+            let remainingTime = this.p2Clock.getRemaining();
+            this.p2Clock.destroy();
+            this.p2Clock = this.time.delayedCall(remainingTime + (Time * 1000), () => {
+                console.log("Delayed Call Finished (ext.)");
+            }, null, this);
+        }
     }
+
+
 
 }

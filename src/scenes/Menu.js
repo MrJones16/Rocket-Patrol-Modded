@@ -30,7 +30,7 @@ class Menu extends Phaser.Scene {
         this.add.text(game.config.width/2, game.config.height/2, "Use arrow keys to move & (F) to fire", menuConfig).setOrigin(0.5);
         menuConfig.backgroundColor = "#00FF00";
         menuConfig.color = "#000";
-        this.add.text(game.config.width/2, game.config.height/2 + borderUISize + borderPadding, "Press <- for Novice or -> for Expert", menuConfig).setOrigin(0.5);
+        this.add.text(game.config.width/2, game.config.height/2 + borderUISize + borderPadding, "Press <- for 2 Players or -> for Solo", menuConfig).setOrigin(0.5);
         // define keys
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
         keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
@@ -41,7 +41,8 @@ class Menu extends Phaser.Scene {
           // easy mode
           game.settings = {
             spaceshipSpeed: 3,
-            gameTimer: 60000    
+            gameTimer: 60000,
+            coop: true
           }
           this.sound.play('sfx_select');
           this.scene.start('playScene');    
@@ -50,7 +51,8 @@ class Menu extends Phaser.Scene {
           // hard mode
           game.settings = {
             spaceshipSpeed: 4,
-            gameTimer: 45000    
+            gameTimer: 45000,
+            coop: false
           }
           this.sound.play('sfx_select');
           this.scene.start('playScene');    
