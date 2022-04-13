@@ -7,6 +7,7 @@ class Play extends Phaser.Scene {
         // load images/tile sprites
         this.load.image('rocket', './assets/rocket.png');
         this.load.image('spaceship', './assets/spaceship.png');
+        this.load.image('spaceshiptwo', './assets/spaceshiptwo.png');
         this.load.image('starfield', './assets/starfield.png');
         // load spritesheet
         this.load.spritesheet('explosion', './assets/explosion.png', {frameWidth: 64, frameHeight: 32, startFrame: 0, endFrame: 9});
@@ -35,9 +36,10 @@ class Play extends Phaser.Scene {
         }
         
         //spaceships
-        this.ship01 = new Spaceship(this, game.config.width + borderUISize*6, borderUISize*4, 'spaceship', 0, 30).setOrigin(0, 0);
-        this.ship02 = new Spaceship(this, game.config.width + borderUISize*3, borderUISize*5 + borderPadding*2, 'spaceship', 0, 20).setOrigin(0,0);
-        this.ship03 = new Spaceship(this, game.config.width, borderUISize*6 + borderPadding*4, 'spaceship', 0, 10).setOrigin(0,0);
+        this.ship01 = new Spaceship(this, game.config.width + borderUISize*6, borderUISize*4+48, 'spaceship', 0, 30).setOrigin(0, 0);
+        this.ship02 = new Spaceship(this, game.config.width + borderUISize*3, borderUISize*5 + borderPadding*2+48, 'spaceship', 0, 20).setOrigin(0,0);
+        this.ship03 = new Spaceship(this, game.config.width, borderUISize*6 + borderPadding*4+48, 'spaceship', 0, 10).setOrigin(0,0);
+        this.ship04 = new SpaceshipTwo(this, game.config.width, borderUISize*4, 'spaceshiptwo', 0, 80).setOrigin(0,0);
         // define keys
         keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
         keyW = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
@@ -108,6 +110,7 @@ class Play extends Phaser.Scene {
             this.ship01.update();           // update spaceships (x3)
             this.ship02.update();
             this.ship03.update();
+            this.ship04.update();
         }
         //checking for timers running out:
         if (!this.gameOver){
@@ -143,6 +146,11 @@ class Play extends Phaser.Scene {
         }
 
         // check collisions
+        if(this.checkCollision(this.p1Rocket, this.ship04)) {
+            console.log('kaboom ship 04 by p1');
+            this.p1Rocket.reset();
+            this.shipExplode(this.ship04, 1); 
+        }
         if(this.checkCollision(this.p1Rocket, this.ship03)) {
             console.log('kaboom ship 03 by p1');
             this.p1Rocket.reset();
@@ -157,6 +165,11 @@ class Play extends Phaser.Scene {
             console.log('kaboom ship 01 by p1');
             this.p1Rocket.reset();
             this.shipExplode(this.ship01, 1); 
+        }
+        if(this.checkCollision(this.p2Rocket, this.ship04)) {
+            console.log('kaboom ship 04 by p2');
+            this.p2Rocket.reset();
+            this.shipExplode(this.ship04, 2); 
         }
         if(this.checkCollision(this.p2Rocket, this.ship03)) {
             console.log('kaboom ship 03 by p2');

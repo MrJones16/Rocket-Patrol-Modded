@@ -1,7 +1,7 @@
 Rocket Patrol modifications List:
 
-Two player - 30 pts
-Display the time remaining - 10pts
-Add time for successfull hits - 20pts
-Small faster ship - 20pts
-Try out the phaser particle system - 20pts
+Two player - 30 pts                               |: Complete
+Display the time remaining - 10pts                |: Complete
+Add time for successfull hits - 20pts             |: Complete
+Small faster ship that is worth more - 20pts      |: Complete
+Try out the phaser particle system - 20pts        |: Incomplete
