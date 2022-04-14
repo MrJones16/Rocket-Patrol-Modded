@@ -11,7 +11,8 @@ class Play extends Phaser.Scene {
         this.load.image('starfield', './assets/starfield.png');
         // load spritesheet
         this.load.spritesheet('explosion', './assets/explosion.png', {frameWidth: 64, frameHeight: 32, startFrame: 0, endFrame: 9});
-        
+        //load particle images
+        this.load.image('spark', './assets/spark.png');
       }
 
     create(){
@@ -46,10 +47,9 @@ class Play extends Phaser.Scene {
         keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
         keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
-        keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
-        keyUP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
         if (game.settings.coop){
-            
+            keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+            keyUP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
         }
 
         // animation config
@@ -79,9 +79,9 @@ class Play extends Phaser.Scene {
             fixedWidth: 100
         }
         this.scoreLeft = this.add.text(borderUISize + borderPadding, borderUISize + borderPadding*2, this.p1Score, this.scoreConfig);
-        this.scoreRight = this.add.text(game.config.width - borderPadding*15 - 100, borderUISize + borderPadding*2, this.p2Score, this.scoreConfig);
+        if (game.settings.coop)this.scoreRight = this.add.text(game.config.width - borderPadding*15 - 100, borderUISize + borderPadding*2, this.p2Score, this.scoreConfig);
         this.timerLeft = this.add.text(borderUISize + borderPadding + 100, borderUISize + borderPadding*2, this.p1Timer, this.scoreConfig);
-        this.timerRight = this.add.text(game.config.width - borderPadding*15, borderUISize + borderPadding*2, this.p2Timer, this.scoreConfig);
+        if (game.settings.coop)this.timerRight = this.add.text(game.config.width - borderPadding*15, borderUISize + borderPadding*2, this.p2Timer, this.scoreConfig);
 
         // GAME OVER flag
         this.gameOver = false;
@@ -94,6 +94,15 @@ class Play extends Phaser.Scene {
         this.p2Clock = this.time.delayedCall(game.settings.gameTimer, () => {
             console.log("Delayed Call Finished: P2");
         }, null, this);
+
+        //particles
+        var particles = this.add.particles('spark');
+        this.emitter = particles.createEmitter();
+        this.emitter.setPosition(100, 100);
+        this.emitter.setSpeed(50);
+        this.emitter.true = false;
+        this.emitter.explode(1, -100, -100);
+        this.gameOver = false;
     }
     update() {
         // check key input for restart
@@ -106,13 +115,21 @@ class Play extends Phaser.Scene {
         this.starfield.tilePositionX -= 1;
         if (!this.gameOver) {               
             this.p1Rocket.update();         // update rocket sprite
-            this.p2Rocket.update();
+            if (game.settings.coop)this.p2Rocket.update();
             this.ship01.update();           // update spaceships (x3)
             this.ship02.update();
             this.ship03.update();
             this.ship04.update();
         }
         //checking for timers running out:
+        if (!game.settings.coop){
+            if (this.p1Timer <= 0){
+                this.add.text(game.config.width/2, game.config.height/2, 'Game Over', this.scoreConfig).setOrigin(0.5);
+                    this.add.text(game.config.width/2, game.config.height/2 + 64, 'Press (R) to Restart or <- for menu', this.scoreConfig).setOrigin(0.5);
+                    this.gameOver = true;
+            }
+        }
+        if (game.settings.coop)
         if (!this.gameOver){
             if (this.p1Timer <= 0){
                 if (this.p2Timer <= 0){
@@ -144,6 +161,10 @@ class Play extends Phaser.Scene {
             }
 
         }
+        if(this.gameOver == true){
+            this.p1Clock.destroy();
+            this.p2Clock.destroy();
+        }
 
         // check collisions
         if(this.checkCollision(this.p1Rocket, this.ship04)) {
@@ -166,22 +187,22 @@ class Play extends Phaser.Scene {
             this.p1Rocket.reset();
             this.shipExplode(this.ship01, 1); 
         }
-        if(this.checkCollision(this.p2Rocket, this.ship04)) {
+        if (game.settings.coop)if(this.checkCollision(this.p2Rocket, this.ship04)) {
             console.log('kaboom ship 04 by p2');
             this.p2Rocket.reset();
             this.shipExplode(this.ship04, 2); 
         }
-        if(this.checkCollision(this.p2Rocket, this.ship03)) {
+        if (game.settings.coop)if(this.checkCollision(this.p2Rocket, this.ship03)) {
             console.log('kaboom ship 03 by p2');
             this.p2Rocket.reset();
             this.shipExplode(this.ship03, 2); 
         }
-        if (this.checkCollision(this.p2Rocket, this.ship02)) {
+        if (game.settings.coop)if (this.checkCollision(this.p2Rocket, this.ship02)) {
             console.log('kaboom ship 02 by p2');
             this.p2Rocket.reset();
             this.shipExplode(this.ship02, 2); 
         }
-        if (this.checkCollision(this.p2Rocket, this.ship01)) {
+        if (game.settings.coop)if (this.checkCollision(this.p2Rocket, this.ship01)) {
             console.log('kaboom ship 01 by p2');
             this.p2Rocket.reset();
             this.shipExplode(this.ship01, 2); 
@@ -189,8 +210,11 @@ class Play extends Phaser.Scene {
 
         this.p1Timer = this.p1Clock.getRemainingSeconds();
         this.p2Timer = this.p2Clock.getRemainingSeconds();
-        this.timerLeft.text = Math.floor(this.p1Timer);
-        this.timerRight.text = Math.floor(this.p2Timer);
+        if (!this.gameOver){
+            this.timerLeft.text = Math.floor(this.p1Timer);
+            if (game.settings.coop)this.timerRight.text = Math.floor(this.p2Timer);
+        }
+        
         
 
     }
@@ -213,6 +237,8 @@ class Play extends Phaser.Scene {
         // temporarily hide ship
         // ship.alpha = 0;
         ship.y = -100;
+        //create emitter explosion:
+        this.emitter.explode(3, ship.x, storeY);
         // create explosion sprite at ship's position
         let boom = this.add.sprite(ship.x, storeY, 'explosion').setOrigin(0, 0);
         boom.anims.play('explode');             // play explode animation
