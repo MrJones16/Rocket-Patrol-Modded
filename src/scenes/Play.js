@@ -2,6 +2,12 @@ class Play extends Phaser.Scene {
     constructor(){
         super("playScene");
     }
+    //------------------------------------------------------------
+    //Made By Peyton Jones
+    //Modded Rocket Patrol
+    //Date:    4/13/2022
+    //It took me about 5 hours to add the modifications
+    //------------------------------------------------------------
 
     preload() {
         // load images/tile sprites

@@ -3,6 +3,13 @@ class Menu extends Phaser.Scene {
         super("menuScene");
     }
 
+    //------------------------------------------------------------
+    //Made By Peyton Jones
+    //Modded Rocket Patrol
+    //Date:    4/13/2022
+    //It took me about 5 hours to add the modifications
+    //------------------------------------------------------------
+
     preload() {
         // load audio
         this.load.audio('sfx_select', './assets/blip_select12.wav');

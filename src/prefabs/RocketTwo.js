@@ -9,6 +9,13 @@ class RocketTwo extends Phaser.GameObjects.Sprite {
         this.sfxRocket = scene.sound.add('sfx_rocket'); // add rocket sfx
     }
 
+    //------------------------------------------------------------
+    //Made By Peyton Jones
+    //Modded Rocket Patrol
+    //Date:    4/13/2022
+    //It took me about 5 hours to add the modifications
+    //------------------------------------------------------------
+
     update() {
         //left/right movement
         if(!this.isFiring){

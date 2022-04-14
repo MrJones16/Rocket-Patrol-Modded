@@ -7,6 +7,13 @@ class Spaceship extends Phaser.GameObjects.Sprite {
         this.moveSpeed = game.settings.spaceshipSpeed;
     }
 
+    //------------------------------------------------------------
+    //Made By Peyton Jones
+    //Modded Rocket Patrol
+    //Date:    4/13/2022
+    //It took me about 5 hours to add the modifications
+    //------------------------------------------------------------
+
     update() {
         //move spaceship to the left
         this.x -= this.moveSpeed;
